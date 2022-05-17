@@ -1,0 +1,109 @@
+{
+  "name": "Aliothin/SearchX",
+  "description": "The Ultimate Telegram Bot for Google Drive",
+  "keywords": [
+    "telegram",
+    "google drive",
+    "clone"
+  ],
+  "repository": "https://github.com/Aliothin/SearchX",
+  "logo": "https://camo.githubusercontent.com/45f9c4bca565dcbbcef30f9a1c48b952a95077428baa0bf3dc177fc57ceffbd1/68747470733a2f2f63646e2e6472696262626c652e636f6d2f75736572732f313530313035322f73637265656e73686f74732f353436383034392f736561726368696e675f7469636b6574732e676966",
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Your Bot token, Get it from @Botfather",
+      "value": ""
+    },
+    "OWNER_ID": {
+      "description": "An integer of consisting of your owner ID",
+      "value": "1250450587"
+    },
+    "DRIVE_FOLDER_ID":{
+      "description": "your google drive folder id for uploads",
+      "value": ""
+    },
+    "TELEGRAPH_ACCS":{
+      "description": "Choose how many telegraph tokens will be generated (Default is 2)",
+      "value": ""
+    },
+    "AUTHORIZED_CHATS":{
+      "description": "Fill the user_id and/or chat_id you want to authorize, separate them with space",
+      "value": ""
+    },
+    "DATABASE_URL":{
+      "description": "Create a cluster on MongoDB to get this value",
+      "value": ""
+    },
+    "IS_TEAM_DRIVE": {
+      "description": " Set to True if the DRIVE_FOLDER_ID is from a Shared Drive",
+      "value": ""
+    },
+    "USE_SERVICE_ACCOUNTS": {
+      "description": "Set to True if the data will be cloned using Service Accounts.",
+      "value": "Hello {first}\n\n<b>You need to join in my Channel/Group to use me\n\nKindly Please join Channel</b>"
+    },
+    "DRIVE_INDEX_URL": {
+      "description": "Refer to maple's GDIndex or Bhadoo's Google Drive Index\nNote: The Index URL should not have any trailing '/'",
+      "value": "",
+      "required": false
+    },
+    "TOKEN_JSON_URL": {
+      "description": "Fill the direct download link of token.json file",
+      "value": "False",
+      "required": false
+    },
+    "ACCOUNTS_ZIP_URL": {
+      "description": "Archive the accounts folder to a zip file. Then fill the direct download link of that file.",
+      "value": "False",
+      "required": false
+    },
+    "DRIVE_LIST_URL": {
+      "description": "Upload the drive_list file on GitHub Gist. Now open the raw link of that gist and remove commit id from the link. Then fill the var with that link.",
+      "value": "False",
+      "required": false
+    },
+    "UNIFIED_EMAIL": {
+      "description": "Fill the email address of Unified accounts",
+      "value": "False",
+      "required": false
+    },
+    "UNIFIED_PASSWORD": {
+      "description": "Fill the password of Unified account",
+      "value": "False",
+      "required": false
+    },
+    "GDTOT_CRYPT": {
+      "description": "Fill CRYPT of GDTOT account",
+      "value": "False",
+      "required": false
+    },
+    "HUBDRIVE_CRYPT": {
+      "description": "Fill CRYPT of HubDrive account",
+      "value": "False",
+      "required": false
+    },
+    "KATDRIVE_CRYPT": {
+      "description": "Fill CRYPT of Katdrive/Kolop account",
+      "value": "False",
+      "required": false
+    },
+    "DRIVEFIRE_CRYPT": {
+      "description": "Fill CRYPT of DriveFire account",
+      "value": "False",
+      "required": false
+    },
+    
+  },
+  "addons": [
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
+}
