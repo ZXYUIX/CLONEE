@@ -120,13 +120,13 @@ except KeyError:
     USE_SERVICE_ACCOUNTS = False
 
 try:
-    APPDRIVE_EMAIL = get_config('APPDRIVE_EMAIL')
-    APPDRIVE_PASS = get_config('APPDRIVE_PASS')
-    if len(APPDRIVE_EMAIL) == 0 or len(APPDRIVE_PASS) == 0:
+    UNIFIED_EMAIL = get_config('UNIFIED_EMAIL')
+    UNIFIED_PASS = get_config('UNIFIED_PASS')
+    if len(UNIFIED_EMAIL) == 0 or len(UNIFIED_PASS) == 0:
         raise KeyError
 except KeyError:
-    APPDRIVE_EMAIL = None
-    APPDRIVE_PASS = None
+    UNIFIED_EMAIL = None
+    UNIFIED_PASS = None
 
 try:
     GDTOT_CRYPT = get_config('GDTOT_CRYPT')
@@ -135,6 +135,27 @@ try:
 except KeyError:
     GDTOT_CRYPT = None
 
+try:
+    HUBDRIVE_CRYPT = get_config('HUBDRIVE_CRYPT')
+    if len(HUBDRIVE_CRYPT) == 0:
+        raise KeyError
+except KeyError:
+    HUBDRIVE_CRYPT = None
+    
+try:
+    KATDRIVE_CRYPT = get_config('KATDRIVE_CRYPT')
+    if len(KATDRIVE_CRYPT) == 0:
+        raise KeyError
+except KeyError:
+    KATDRIVE_CRYPT = None
+    
+try:
+    DRIVEFIRE_CRYPT = get_config('DRIVEFIRE_CRYPT')
+    if len(DRIVEFIRE_CRYPT) == 0:
+        raise KeyError
+except KeyError:
+    DRIVEFIRE_CRYPT = None
+    
 try:
     DRIVE_INDEX_URL = get_config('DRIVE_INDEX_URL')
     if len(DRIVE_INDEX_URL) == 0:
