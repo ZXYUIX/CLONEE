@@ -5,7 +5,7 @@ import requests
 from lxml import etree
 from urllib.parse import urlparse, parse_qs
 
-from bot import APPDRIVE_EMAIL, APPDRIVE_PASS, GDTOT_CRYPT
+from bot import UNIFIED_EMAIL, UNIFIED_PASS, GDTOT_CRYPT, HUBDRIVE_CRYPT, KATDRIVE_CRYPT, DRIVEFIRE_CRYPT
 from bot.helper.ext_utils.exceptions import DDLException
 
 account = {
@@ -28,7 +28,7 @@ def gen_payload(data, boundary=f'{"-"*6}_'):
     data_string += f'{boundary}--\r\n'
     return data_string
 
-def appdrive(url: str) -> str:
+def unified(url: str) -> str:
     if (APPDRIVE_EMAIL or APPDRIVE_PASS) is None:
         raise DDLException("APPDRIVE_EMAIL and APPDRIVE_PASS env vars not provided")
     client = requests.Session()
@@ -76,6 +76,48 @@ def appdrive(url: str) -> str:
     else:
         raise DDLException(f"{info['message']}")
 
+def parse_info(res):
+    info_parsed = {}
+    title = re.findall('>(.*?)<\/h4>', res.text)[0]
+    info_chunks = re.findall('>(.*?)<\/td>', res.text)
+    info_parsed['title'] = title
+    for i in range(0, len(info_chunks), 2):
+        info_parsed[info_chunks[i]] = info_chunks[i+1]
+    return info_parsed
+
+def udrive(url: str) -> str:
+    client = requests.Session()
+    client.cookies.update({'crypt': crypt})
+    
+    res = client.get(url)
+    info_parsed = parse_info(res)
+    info_parsed['error'] = False
+    
+    up = urlparse(url)
+    req_url = f"{up.scheme}://{up.netloc}/ajax.php?ajax=download"
+    
+    file_id = url.split('/')[-1]
+    
+    data = { 'id': file_id }
+    
+    headers = {
+        'x-requested-with': 'XMLHttpRequest'
+    }
+    
+    try:
+        res = client.post(req_url, headers=headers, data=data).json()['file']
+    except: return {'error': True, 'src_url': url}
+    
+    if 'drivefire.co' in url:
+      return res
+    else:
+      gd_id = re.findall('gd=(.*)', res, re.DOTALL)[0]
+    
+    info_parsed['gdrive_url'] = f"https://drive.google.com/open?id={gd_id}"
+    info_parsed['src_url'] = url
+
+    return info_parsed['gdrive_url']        
+        
 def gdtot(url: str) -> str:
     if GDTOT_CRYPT is None:
         raise DDLException("GDTOT_CRYPT env var not provided")
