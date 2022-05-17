@@ -54,7 +54,7 @@ def unified(url: str) -> str:
         'action': 'original'
     }
     if len(ddl_btn):
-        info_parsed['link_type'] = 'direct'
+        info['link_type'] = 'direct'
         data['action'] = 'direct'
         
     while data['type'] <= 3:
@@ -65,31 +65,31 @@ def unified(url: str) -> str:
             data['type'] += 1
             
     if 'url' in response:
-        info_parsed['gdrive_link'] = response['url']
+        info['gdrive_link'] = response['url']
         
     elif 'error' in response and response['error']:
-        info_parsed['error'] = True
-        info_parsed['message'] = response['message']
+        info['error'] = True
+        info['message'] = response['message']
         
-    if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
-        res = client.get(info_parsed['gdrive_link'])
+    if urlparse(url).netloc == 'driveapp.in' and not info['error']:
+        res = client.get(info['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
+        info['gdrive_link'] = drive_link
         
-    if urlparse(url).netloc == 'drivesharer.in' and not info_parsed['error']:
-        res = client.get(info_parsed['gdrive_link'])
+    if urlparse(url).netloc == 'drivesharer.in' and not info['error']:
+        res = client.get(info['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
+        info['gdrive_link'] = drive_link
 
-    if urlparse(url).netloc == 'drivebit.in' and not info_parsed['error']:
-        res = client.get(info_parsed['gdrive_link'])
+    if urlparse(url).netloc == 'drivebit.in' and not info['error']:
+        res = client.get(info['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
+        info['gdrive_link'] = drive_link
 
 
-    info_parsed['src_url'] = url
+    info['src_url'] = url
     
-    return info_parsed['gdrive_link']
+    return info['gdrive_link']
 
 def parse_info(res):
     info_parsed = {}
