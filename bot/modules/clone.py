@@ -34,7 +34,7 @@ def cloneNode(update, context):
     is_katdrive = is_katdrive_link(link)
     is_kolop = is_kolop_link(link)
     is_drivefire = is_drivefire_link(link)
-    if (is_unified or is_gdtot or is_udrive or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_katdrive or is_kolop or is_drivefire):
+    if (is_gdtot  or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_katdrive or is_kolop or is_drivefire):
         try:
             msg = sendMessage(f"<b>Processing:</b> <code>{link}</code>", context.bot, update)
             LOGGER.info(f"Processing: {link}")
