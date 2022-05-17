@@ -102,8 +102,12 @@ def parse_info(res):
 
 def udrive(url: str) -> str:
     client = requests.Session()
-    client.cookies.update({'crypt': crypt})
-    
+    if 'hubdrive' in url:
+        client.cookies.update({'crypt': HUBDRIVE_CRYPT})
+    if ('katdrive' or 'kolop') in url:
+        client.cookies.update({'crypt': KATDRIVE_CRYPT})
+    if 'drivefire' in url:
+        client.cookies.update({'crypt': DRIVEFIRE_CRYPT})
     res = client.get(url)
     info_parsed = parse_info(res)
     info_parsed['error'] = False
