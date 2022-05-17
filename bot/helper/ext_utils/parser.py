@@ -42,7 +42,7 @@ def unified(url: str) -> str:
     except IndexError:
         raise DDLException("Invalid link")
     ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
-    info = parse_info(res.text)
+    info = {}
     info['error'] = False
     info['link_type'] = 'login' # direct/login
     headers = {
