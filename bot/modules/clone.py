@@ -4,10 +4,10 @@ from telegram.ext import CommandHandler
 
 from bot import LOGGER, dispatcher
 from bot.helper.drive_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.ext_utils.bot_utils import new_thread, is_gdrive_link, is_appdrive_link, is_gdtot_link
+from bot.helper.ext_utils.bot_utils import *
 from bot.helper.ext_utils.clone_status import CloneStatus
 from bot.helper.ext_utils.exceptions import DDLException
-from bot.helper.ext_utils.parser import appdrive, gdtot
+from bot.helper.ext_utils.parser import unified, gdtot, udrive
 from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, deleteMessage
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
@@ -25,15 +25,41 @@ def cloneNode(update, context):
             link = reply_to.text
     is_appdrive = is_appdrive_link(link)
     is_gdtot = is_gdtot_link(link)
-    if (is_appdrive or is_gdtot):
+    is_gdflix = is_gdflix_link(link)
+    is_driveapp = is_driveapp_link(link)
+    is_drivelinks = is_drivelinks_link(link)
+    is_drivebit = is_drivebit_link(link)
+    is_drivesharer = is_drivesharer_link(link)
+    is_hubdrive = is_hubdrive_link(link)
+    is_katdrive = is_katdrive_link(link)
+    is_kolop = is_kolop_link(link)
+    is_drivefire = is_drivefire_link(link)
+    if (is_unified or is_gdtot or is_udrive or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_katdrive or is_kolop or is_drivefire):
         try:
             msg = sendMessage(f"<b>Processing:</b> <code>{link}</code>", context.bot, update)
             LOGGER.info(f"Processing: {link}")
             if is_appdrive:
-                appdict = appdrive(link)
-                link = appdict.get('gdrive_link')
+                link = unified(link)
             if is_gdtot:
                 link = gdtot(link)
+            if is_gdflix:
+                link = unified(link)
+            if is_driveapp:
+                link = unified(link)
+            if is_drivelinks:
+                link = unified(link)
+            if is_drivebit:
+                link = unified(link)
+            if is_drivesharer:
+                link = unified(link)
+            if is_hubdrive:
+                link = udrive(link)
+            if is_katdrive:
+                link = udrive(link)
+            if is_kolop:
+                link = udrive(link)
+            if is_drivefire:
+                link = udrive(link)
             deleteMessage(context.bot, msg)
         except DDLException as e:
             deleteMessage(context.bot, msg)
@@ -49,13 +75,9 @@ def cloneNode(update, context):
         deleteMessage(context.bot, msg)
         status_class.set_status(True)
         sendMessage(result, context.bot, update)
-        if is_gdtot:
+        if (is_appdrive or is_gdtot or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_katdrive or is_kolop or is_drivefire):
             LOGGER.info(f"Deleting: {link}")
             gd.deleteFile(link)
-        if is_appdrive:
-            if appdict.get('link_type') == 'login':
-                LOGGER.info(f"Deleting: {link}")
-                gd.deleteFile(link)
     else:
         sendMessage("<b>Send a Drive / AppDrive / DriveApp / GDToT link along with command</b>", context.bot, update)
         LOGGER.info("Cloning: None")
