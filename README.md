@@ -12,7 +12,11 @@
 > A simple Telegram Bot for searching data on Google Drive. Able to clone data from Drive / AppDrive / DriveApp / GDToT links. Supports MongoDB for storing authorized users record.
 
 </p>
-
+### Installation
+#### Deploy on Heroku
+**BEFORE YOU DEPLOY ON HEROKU, YOU SHOULD FORK THE REPO AND CHANGE ITS NAME TO ANYTHING ELSE**<br>
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)</br>
+<br>
 
 ### [Features](https://github.com/l3v11/SearchX/wiki/Features)
 
