@@ -90,8 +90,7 @@
       "description": "Fill CRYPT of DriveFire account",
       "value": "False",
       "required": false
-    },
-    
+    }
   },
   "addons": [
   ],
