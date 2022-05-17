@@ -9,8 +9,8 @@ from bot import UNIFIED_EMAIL, UNIFIED_PASS, GDTOT_CRYPT, HUBDRIVE_CRYPT, KATDRI
 from bot.helper.ext_utils.exceptions import DDLException
 
 account = {
-    'email': APPDRIVE_EMAIL, 
-    'passwd': APPDRIVE_PASS
+    'email': UNIFIED_EMAIL, 
+    'passwd': UNIFIED_PASS
 }
 
 def account_login(client, url, email, password):
@@ -29,7 +29,7 @@ def gen_payload(data, boundary=f'{"-"*6}_'):
     return data_string
 
 def unified(url: str) -> str:
-    if (APPDRIVE_EMAIL or APPDRIVE_PASS) is None:
+    if (UNIFIED_EMAIL or UNIFIED_PASS) is None:
         raise DDLException("APPDRIVE_EMAIL and APPDRIVE_PASS env vars not provided")
     client = requests.Session()
     client.headers.update({
