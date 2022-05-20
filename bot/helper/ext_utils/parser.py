@@ -28,6 +28,14 @@ def gen_payload(data, boundary=f'{"-"*6}_'):
     data_string += f'{boundary}--\r\n'
     return data_string
 
+def parse_infou(data):
+    info = re.findall('>(.*?)<\/li>', data)
+    info_parsed = {}
+    for item in info:
+        kv = [s.strip() for s in item.split(':', maxsplit = 1)]
+        info_parsed[kv[0].lower()] = kv[1]
+    return info_parsed
+
 def unified(url: str) -> str:
     if (UNIFIED_EMAIL or UNIFIED_PASS) is None:
         raise DDLException("UNIFIED_EMAIL and UNIFIED_PASS env vars not provided")
@@ -35,56 +43,72 @@ def unified(url: str) -> str:
     client.headers.update({
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
     })
-    account_login(client, url, account['email'], account['passwd'])
+
+    account_login(client, url, email, passwd)
+    update_account(client, url, SHARED_DRIVE_ID, FOLDER_ID)
+
     res = client.get(url)
-    try:
-        key = re.findall(r'"key",\s+"(.*?)"', res.text)[0]
-    except IndexError:
-        raise DDLException("Invalid link")
+    key = re.findall('"key",\s+"(.*?)"', res.text)[0]
+
     ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
-    info = {}
-    info['error'] = False
-    info['link_type'] = 'login'  # direct/login
+
+    info_parsed = parse_infou(res.text)
+    info_parsed['error'] = False
+    info_parsed['link_type'] = 'login' # direct/login
+    
     headers = {
         "Content-Type": f"multipart/form-data; boundary={'-'*4}_",
     }
+    
     data = {
         'type': 1,
         'key': key,
         'action': 'original'
     }
+    
     if len(ddl_btn):
-        info['link_type'] = 'direct'
+        info_parsed['link_type'] = 'direct'
         data['action'] = 'direct'
+    
     while data['type'] <= 3:
         try:
             response = client.post(url, data=gen_payload(data), headers=headers).json()
             break
-        except:
-            data['type'] += 1
+        except: data['type'] += 1
+        
     if 'url' in response:
-        info['gdrive_link'] = response['url']
-        
+        info_parsed['gdrive_link'] = response['url']
     elif 'error' in response and response['error']:
-        info['error'] = True
-        info['message'] = response['message']
-        
-    if urlparse(url).netloc == 'appdrive.in' and not info['error']:
-        return info
-    if urlparse(url).netloc == 'driveapp.in' and not info['error']:
-        res = client.get(info['gdrive_link'])
+        info_parsed['error'] = True
+        info_parsed['error_message'] = response['message']
+    else:
+        info_parsed['error'] = True
+        info_parsed['error_message'] = 'Something went wrong :('
+    
+    if info_parsed['error']: return info_parsed
+    
+    if urlparse(url).netloc == 'appdrive.in' and not info_parsed['error']:
+        return info_parsed['gdrive_link']
+    
+    if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
+        res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
-        info['gdrive_link'] = drive_link
-    if urlparse(url).netloc == 'drivesharer.in' and not info['error']:
-        res = client.get(info['gdrive_link'])
+        info_parsed['gdrive_link'] = drive_link
+
+    if urlparse(url).netloc == 'drivesharer.in' and not info_parsed['error']:
+        res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
-        info['gdrive_link'] = drive_link
-    if urlparse(url).netloc == 'drivebit.in' and not info['error']:
-        res = client.get(info['gdrive_link'])
+        info_parsed['gdrive_link'] = drive_link
+
+    if urlparse(url).netloc == 'drivebit.in' and not info_parsed['error']:
+        res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
-        info['gdrive_link'] = drive_link
-    if not info['error']:
-        return info['gdrive_link']
+        info_parsed['gdrive_link'] = drive_link
+
+
+    info_parsed['src_url'] = url
+    
+    return info_parsed['gdrive_link']
 
                            
 def parse_info(res):
