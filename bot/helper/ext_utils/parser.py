@@ -70,7 +70,7 @@ def unified(url: str) -> str:
         info['message'] = response['message']
         
     if urlparse(url).netloc == 'appdrive.in' and not info['error']:
-        info['gdrive_link']
+        return info['gdrive_link']
     if urlparse(url).netloc == 'driveapp.in' and not info['error']:
         res = client.get(info['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
@@ -84,9 +84,7 @@ def unified(url: str) -> str:
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
         info['gdrive_link'] = drive_link
     if not info['error']:
-        return info
-    else:
-        raise DDLException(f"{info['message']}"
+        return info['gdrive_link']
 
                            
 def parse_info(res):
