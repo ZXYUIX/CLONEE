@@ -4,6 +4,7 @@ from magic import Magic
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage
 from bot.helper.telegram_helper.bot_commands import BotCommands
+from bot.helper.telegram_helper.button_build import ButtonMaker
 from logging import getLogger, ERROR, DEBUG
 from time import time
 from pickle import load as pload
@@ -12,14 +13,22 @@ from os import makedirs, path as ospath, listdir,
 from requests.utils import quote as rquote
 from io import FileIO
 from re import search as re_search
+from timeit import default_timer as timer
 from urllib.parse import parse_qs, urlparse
 from random import randrange
+
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from tenacity import *
+
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+
 from telegram import InlineKeyboardMarkup
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, before_log, RetryError
 from bot import parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, DRIVE_INDEX_URL, USE_SERVICE_ACCOUNTS
@@ -36,7 +45,7 @@ def get_mime_type(file_path):
     mime_type = mime_type or "text/plain"
     return mime_type
     
-class GoogleDriveHelper:
+class GoogleDriveHelper1:
 
     def __init__(self, name=None, listener=None):
       self.listener = listener
@@ -56,7 +65,43 @@ class GoogleDriveHelper:
         self.total_folders = 0
         self.transferred_size = 0
         self.alt_auth = False
-      
+	
+    def authorize(self):
+        # Get credentials
+        credentials = None
+        if not USE_SERVICE_ACCOUNTS:
+            if os.path.exists(self.__G_DRIVE_TOKEN_FILE):
+                credentials = Credentials.from_authorized_user_file(self.__G_DRIVE_TOKEN_FILE, self.__OAUTH_SCOPE)
+            if credentials is None or not credentials.valid:
+                if credentials and credentials.expired and credentials.refresh_token:
+                    credentials.refresh(Request())
+        else:
+            LOGGER.info(f"Authorizing with {SERVICE_ACCOUNT_INDEX}.json file")
+            credentials = service_account.Credentials.from_service_account_file(
+                f'accounts/{SERVICE_ACCOUNT_INDEX}.json', scopes=self.__OAUTH_SCOPE)
+        return build('drive', 'v3', credentials=credentials, cache_discovery=False)
+
+    def alt_authorize(self):
+        credentials = None
+        if USE_SERVICE_ACCOUNTS and not self.alt_auth:
+            self.alt_auth = True
+            if os.path.exists(self.__G_DRIVE_TOKEN_FILE):
+                LOGGER.info("Authorizing with token.json file")
+                credentials = Credentials.from_authorized_user_file(self.__G_DRIVE_TOKEN_FILE, self.__OAUTH_SCOPE)
+                if credentials is None or not credentials.valid:
+                    if credentials and credentials.expired and credentials.refresh_token:
+                        credentials.refresh(Request())
+                return build('drive', 'v3', credentials=credentials, cache_discovery=False)
+        return None
+
+    def switchServiceAccount(self):
+        global SERVICE_ACCOUNT_INDEX
+        service_account_count = len(os.listdir("accounts"))
+        if SERVICE_ACCOUNT_INDEX == service_account_count - 1:
+            SERVICE_ACCOUNT_INDEX = 0
+        SERVICE_ACCOUNT_INDEX += 1
+        LOGGER.info(f"Authorizing with {SERVICE_ACCOUNT_INDEX}.json file")
+        self.__service = self.authorize()
       
 @new_thread
 def mirrorNode(update, context):
