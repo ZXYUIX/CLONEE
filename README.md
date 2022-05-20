@@ -9,7 +9,7 @@
 
 ## SearchX
 
-> A simple Telegram Bot for searching data on Google Drive. Able to clone data from Drive / AppDrive / DriveApp / GDToT / GDFlix / DriveLinks / DriveBit / DriveSharer / HubDrive / KatDrive / Kolop / DriveFire  links. Supports MongoDB for storing authorized users record.
+> A simple Telegram Bot for searching data on Google Drive. Able to clone data from Drive / AppDrive / DriveApp / GDToT / GDFlix / DriveLinks / DriveBit / DriveSharer / HubDrive / KatDrive / Kolop / DriveFire  links. It can also bypass shorten links (Only GPlinks, Rocklinks, Adf.ly and droplink). Supports MongoDB for storing authorized users record.
 
 </p>
 
@@ -42,3 +42,5 @@ Read this if you have any queries
 ### [Credits](https://github.com/l3v11/SearchX/wiki/Credits)
 
 List of contributors of the bot
+
+
