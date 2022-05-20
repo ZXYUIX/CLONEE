@@ -3,6 +3,8 @@ import threading
 
 SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 
+URL_REGEX = r"(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+"
+
 def get_readable_file_size(size_in_bytes) -> str:
     if size_in_bytes is None:
         return '0B'
@@ -14,6 +16,10 @@ def get_readable_file_size(size_in_bytes) -> str:
         return f'{round(size_in_bytes, 2)}{SIZE_UNITS[index]}'
     except IndexError:
         return 'File too large'
+
+def is_url(url: str):
+    url = findall(URL_REGEX, url)
+    return bool(url)
 
 def is_gdrive_link(url: str):
     return "drive.google.com" in url
