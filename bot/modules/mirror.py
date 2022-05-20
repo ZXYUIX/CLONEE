@@ -9,7 +9,7 @@ from logging import getLogger, ERROR, DEBUG
 from time import time
 from pickle import load as pload
 from json import loads as jsnloads
-from os import makedirs, path as ospath, listdir, 
+from os import makedirs, path as ospath, listdir
 from requests.utils import quote as rquote
 from io import FileIO
 from re import search as re_search
