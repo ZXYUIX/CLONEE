@@ -109,6 +109,7 @@ def mirrorNode(update, context):
     args = update.message.text.split(" ", maxsplit=1)
     reply_to = update.message.reply_to_message
     link = ''
+    gd = GoogleDriveHelper1()
     if len(args) > 1:
         link = args[1]
     if reply_to is not None:
@@ -133,7 +134,7 @@ def mirrorNode(update, context):
       try:
         msg = sendMessage(f"<b>Mirroring:</b> <code>{link}</code>", context.bot, update)
         LOGGER.info(f"Mirroring: {link}")
-        result = mirror(link)
+        result = gd.mirror(link)
         filename = link.split("/")[-1]
         loc = DOWNLOAD_DIR+filename
         filesize = ospath.getsize(loc)
@@ -182,6 +183,7 @@ def mirror(link):
   response = None
   drive_file = self.__service.files().get(supportsAllDrives=True, fileId=response['id']).execute()
   download_url = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(drive_file.get('id'))
+  os.remove(loc)
   return download_url
 
 mirror_handler = CommandHandler(BotCommands.CloneCommand, mirrorNode,
