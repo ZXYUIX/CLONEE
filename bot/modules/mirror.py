@@ -2,7 +2,7 @@ import os
 import requests
 from magic import Magic
 from bot.helper.ext_utils.bot_utils import *
-from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, editMessage
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from logging import getLogger, ERROR, DEBUG
