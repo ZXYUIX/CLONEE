@@ -46,7 +46,6 @@ def get_mime_type(file_path):
     return mime_type
     
 class GoogleDriveHelper1:
-
     def __init__(self, name=None, listener=None):
 	#define class
       	self.listener = listener
