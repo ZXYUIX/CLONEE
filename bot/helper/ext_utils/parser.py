@@ -45,7 +45,6 @@ def unified(url: str) -> str:
     })
 
     account_login(client, url, email, passwd)
-    update_account(client, url, SHARED_DRIVE_ID, FOLDER_ID)
 
     res = client.get(url)
     key = re.findall('"key",\s+"(.*?)"', res.text)[0]
