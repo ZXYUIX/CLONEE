@@ -48,6 +48,7 @@ def get_mime_type(file_path):
 class GoogleDriveHelper1:
 
     def __init__(self, name=None, listener=None):
+	#define class
       	self.listener = listener
         self.name = name
         self.__G_DRIVE_TOKEN_FILE = "token.json"
