@@ -30,7 +30,7 @@ def gen_payload(data, boundary=f'{"-"*6}_'):
 
 def unified(url: str) -> str:
     if (UNIFIED_EMAIL or UNIFIED_PASS) is None:
-        raise DDLException("APPDRIVE_EMAIL and APPDRIVE_PASS env vars not provided")
+        raise DDLException("UNIFIED_EMAIL and UNIFIED_PASS env vars not provided")
     client = requests.Session()
     client.headers.update({
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
@@ -44,7 +44,7 @@ def unified(url: str) -> str:
     ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
     info = {}
     info['error'] = False
-    info['link_type'] = 'login' # direct/login
+    info['link_type'] = 'login'  # direct/login
     headers = {
         "Content-Type": f"multipart/form-data; boundary={'-'*4}_",
     }
@@ -56,24 +56,22 @@ def unified(url: str) -> str:
     if len(ddl_btn):
         info['link_type'] = 'direct'
         data['action'] = 'direct'
-        
     while data['type'] <= 3:
         try:
             response = client.post(url, data=gen_payload(data), headers=headers).json()
             break
         except:
             data['type'] += 1
-            
     if 'url' in response:
         info['gdrive_link'] = response['url']
         
     elif 'error' in response and response['error']:
         info['error'] = True
         info['message'] = response['message']
-    
-    if urlparse(url).netloc == 'appdrive.in' and not info['error']:
-        return info['gdrive_link']
         
+    if urlparse(url).netloc == 'appdrive.in' and not info['error']:
+        info['gdrive_link']
+   
     if urlparse(url).netloc == 'driveapp.in' and not info['error']:
         res = client.get(info['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
@@ -88,11 +86,10 @@ def unified(url: str) -> str:
         res = client.get(info['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
         info['gdrive_link'] = drive_link
-
-
-    info['src_url'] = url
-    
-    return info['gdrive_link']
+    if not info['error']:
+        return info
+    else:
+        raise DDLException(f"{info['message']}"
 
 def parse_info(res):
     info_parsed = {}
