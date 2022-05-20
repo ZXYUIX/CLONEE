@@ -70,12 +70,6 @@ def unified(url: str) -> str:
     elif 'error' in response and response['error']:
         info['error'] = True
         info['message'] = response['message']
-        
-    else:
-        info['error'] = True
-        info['error_message'] = 'Something went wrong :('
-    
-    if info['error']: return info
     
     if urlparse(url).netloc == 'appdrive.in' and not info['error']:
         return info['gdrive_link']
