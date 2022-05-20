@@ -46,6 +46,8 @@ except KeyError:
 load_dotenv('config.env')
 
 AUTHORIZED_CHATS = set()
+DOWNLOAD_DIR = "/usr/src/app/downloads"
+
 
 if os.path.exists('authorized_chats.txt'):
     with open('authorized_chats.txt', 'r+') as f:
@@ -100,7 +102,7 @@ try:
         raise KeyError
 except KeyError:
     DATABASE_URL = None
-
+    
 try:
     IS_TEAM_DRIVE = get_config('IS_TEAM_DRIVE')
     if IS_TEAM_DRIVE.lower() == 'true':
