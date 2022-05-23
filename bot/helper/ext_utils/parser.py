@@ -91,6 +91,50 @@ def unified(url: str) -> str:
     
     return info['gdrive_link']
 
+def appdrive(url: str) -> str:
+    if (UNIFIED_EMAIL or UNIFIED_PASS) is None:
+        raise ExceptionHandler("APPDRIVE_EMAIL and APPDRIVE_PASS env vars not provided")
+    client = requests.Session()
+    client.headers.update({
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+    })
+    account_login(client, url, account['email'], account['passwd'])
+    res = client.get(url)
+    try:
+        key = re.findall(r'"key",\s+"(.*?)"', res.text)[0]
+    except IndexError:
+        raise ExceptionHandler("Invalid link")
+    ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
+    info = {}
+    info['error'] = False
+    info['link_type'] = 'login'  # direct/login
+    headers = {
+        "Content-Type": f"multipart/form-data; boundary={'-'*4}_",
+    }
+    data = {
+        'type': 1,
+        'key': key,
+        'action': 'original'
+    }
+    if len(ddl_btn):
+        info['link_type'] = 'direct'
+        data['action'] = 'direct'
+    while data['type'] <= 3:
+        try:
+            response = client.post(url, data=gen_payload(data), headers=headers).json()
+            break
+        except:
+            data['type'] += 1
+    if 'url' in response:
+        info['gdrive_link'] = response['url']
+    elif 'error' in response and response['error']:
+        info['error'] = True
+        info['message'] = response['message']
+    if not info['error']:
+        return info
+    else:
+        raise ExceptionHandler(f"{info['message']}")
+
 def parse_info(res):
     info_parsed = {}
     title = re.findall('>(.*?)<\/h4>', res.text)[0]
