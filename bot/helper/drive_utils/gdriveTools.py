@@ -5,7 +5,7 @@ import re
 import requests
 import time
 
-from magic import Magic
+import mimetypes
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
 from random import randrange
@@ -35,9 +35,8 @@ if USE_SERVICE_ACCOUNTS:
 telegraph_limit = 60
 
 def get_mime_type(file_path):
-    mime = Magic(mime=True)
-    mime_type = mime.from_file(file_path)
-    mime_type = mime_type or "text/plain"
+    mime = mimetypes.guess_type(file_path)
+    mime_type = mime or "text/plain"
     return mime_type
 
 class GoogleDriveHelper:
