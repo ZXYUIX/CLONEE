@@ -36,7 +36,7 @@ from bot.helper.telegram_helper.bot_commands import BotCommands
       
 @new_thread
 def mirrorNode(update, context):
-  LOGGER.info('User: {} [{}]'.format(update.message.from_user.first_name, update.message.from_user.id))
+    LOGGER.info('User: {} [{}]'.format(update.message.from_user.first_name, update.message.from_user.id))
     args = update.message.text.split(" ", maxsplit=1)
     reply_to = update.message.reply_to_message
     link = ''
