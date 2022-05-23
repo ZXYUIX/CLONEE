@@ -5,6 +5,7 @@ import re
 import requests
 import time
 
+from magic import Magic
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
 from random import randrange
@@ -20,7 +21,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from tenacity import *
 
-from bot import LOGGER, DRIVE_NAME, DRIVE_ID, INDEX_URL, parent_id, \
+from bot import LOGGER, DRIVE_NAME, DRIVE_ID, parent_id, DOWNLOAD_DIR\
     IS_TEAM_DRIVE, telegraph, USE_SERVICE_ACCOUNTS, DRIVE_INDEX_URL
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.telegram_helper.button_build import ButtonMaker
@@ -31,6 +32,12 @@ if USE_SERVICE_ACCOUNTS:
     SERVICE_ACCOUNT_INDEX = randrange(len(os.listdir("accounts")))
 
 telegraph_limit = 60
+
+def get_mime_type(file_path):
+    mime = Magic(mime=True)
+    mime_type = mime.from_file(file_path)
+    mime_type = mime_type or "text/plain"
+    return mime_type
 
 class GoogleDriveHelper:
     def __init__(self, name=None, listener=None):
@@ -353,6 +360,44 @@ class GoogleDriveHelper:
             LOGGER.error(f"{msg}")
         return msg
 
+    @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
+           retry=retry_if_exception_type(HttpError), before=before_log(LOGGER, logging.DEBUG))
+    def mirror(link):
+        r = requests.get(link, stream = True)
+        # No Dependency
+        filename = link.split("/")[-1]
+        loc = DOWNLOAD_DIR + filename
+        with open(loc, "wb") as file:
+        # Always write format like (.txt/.mp3/.mp4/.pdf/.json/.iso)
+            for block in r.iter_content(chunk_size = 1024):
+                if block:
+                    file.write(block)
+        mimefile = get_mime_type(loc)
+        file_metadata = {
+                    'name': filename,
+                    'description': 'Uploaded by SearchX-bot',
+                    'mimeType': mimefile,
+                    }
+        if ospath.getsize(loc) == 0:
+                  media_body = MediaFileUpload(loc,
+                                               mimetype=mimefile,
+                                               resumable=False)
+                  response = self.__service.files().create(supportsAllDrives=True,
+                                                                    body=file_metadata, media_body=media_body).execute()
+          
+        media_body = MediaFileUpload(loc,
+                                     mimetype=mimefile,
+                                     resumable=True,
+                                     chunksize=50 * 1024 * 1024)
+        drive_file = self.__service.files().create(supportsAllDrives=True,
+                                                   body=file_metadata, media_body=media_body)
+        response = None
+        drive_file = self.__service.files().get(supportsAllDrives=True, fileId=response['id']).execute()
+        download_url = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(drive_file.get('id'))
+        os.remove(loc)
+        return download_url
+    
+    
     def gDrive_file(self, filee):
         size = int(filee.get('size', 0))
         self.total_bytes += size
