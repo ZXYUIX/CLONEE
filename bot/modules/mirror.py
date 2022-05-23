@@ -1,10 +1,6 @@
 import os
 import requests
-from magic import Magic
-from bot.helper.ext_utils.bot_utils import *
-from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, editMessage
-from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.telegram_helper.button_build import ButtonMaker
+
 from logging import getLogger, ERROR, DEBUG
 from time import time
 from pickle import load as pload
@@ -22,86 +18,21 @@ from google.oauth2 import service_account
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from tenacity import *
-
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+from tenacity import *
 
 from telegram import InlineKeyboardMarkup
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, before_log, RetryError
 from bot import parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, DRIVE_INDEX_URL, USE_SERVICE_ACCOUNTS
+from bot.helper.drive_utils.gdriveTools import *
+from bot.helper.telegram_helper.button_build import ButtonMaker
+from bot.helper.ext_utils.bot_utils import *
+from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, editMessage
+from bot.helper.telegram_helper.bot_commands import BotCommands
 
-LOGGER = getLogger(__name__)
-getLogger('googleapiclient.discovery').setLevel(ERROR)
-
-if USE_SERVICE_ACCOUNTS:
-    SERVICE_ACCOUNT_INDEX = randrange(len(listdir("accounts")))
-    
-def get_mime_type(file_path):
-    mime = Magic(mime=True)
-    mime_type = mime.from_file(file_path)
-    mime_type = mime_type or "text/plain"
-    return mime_type
-    
-class GoogleDriveHelper1:
-    def __init__(self, name=None, listener=None):
-	#define class
-      	self.listener = listener
-        self.name = name
-        self.__G_DRIVE_TOKEN_FILE = "token.json"
-        # Check https://developers.google.com/drive/scopes for all available scopes
-        self.__OAUTH_SCOPE = ['https://www.googleapis.com/auth/drive']
-        self.__G_DRIVE_DIR_MIME_TYPE = "application/vnd.google-apps.folder"
-        self.__G_DRIVE_BASE_DOWNLOAD_URL = "https://drive.google.com/uc?id={}&export=download"
-        self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL = "https://drive.google.com/drive/folders/{}"
-        self.__service = self.authorize()
-        self.batch_dict = {}
-        self.telegraph_content = []
-        self.path = []
-        self.total_bytes = 0
-        self.total_files = 0
-        self.total_folders = 0
-        self.transferred_size = 0
-        self.alt_auth = False
-	
-    def authorize(self):
-        # Get credentials
-        credentials = None
-        if not USE_SERVICE_ACCOUNTS:
-            if os.path.exists(self.__G_DRIVE_TOKEN_FILE):
-                credentials = Credentials.from_authorized_user_file(self.__G_DRIVE_TOKEN_FILE, self.__OAUTH_SCOPE)
-            if credentials is None or not credentials.valid:
-                if credentials and credentials.expired and credentials.refresh_token:
-                    credentials.refresh(Request())
-        else:
-            LOGGER.info(f"Authorizing with {SERVICE_ACCOUNT_INDEX}.json file")
-            credentials = service_account.Credentials.from_service_account_file(
-                f'accounts/{SERVICE_ACCOUNT_INDEX}.json', scopes=self.__OAUTH_SCOPE)
-        return build('drive', 'v3', credentials=credentials, cache_discovery=False)
-
-    def alt_authorize(self):
-        credentials = None
-        if USE_SERVICE_ACCOUNTS and not self.alt_auth:
-            self.alt_auth = True
-            if os.path.exists(self.__G_DRIVE_TOKEN_FILE):
-                LOGGER.info("Authorizing with token.json file")
-                credentials = Credentials.from_authorized_user_file(self.__G_DRIVE_TOKEN_FILE, self.__OAUTH_SCOPE)
-                if credentials is None or not credentials.valid:
-                    if credentials and credentials.expired and credentials.refresh_token:
-                        credentials.refresh(Request())
-                return build('drive', 'v3', credentials=credentials, cache_discovery=False)
-        return None
-
-    def switchServiceAccount(self):
-        global SERVICE_ACCOUNT_INDEX
-        service_account_count = len(os.listdir("accounts"))
-        if SERVICE_ACCOUNT_INDEX == service_account_count - 1:
-            SERVICE_ACCOUNT_INDEX = 0
-        SERVICE_ACCOUNT_INDEX += 1
-        LOGGER.info(f"Authorizing with {SERVICE_ACCOUNT_INDEX}.json file")
-        self.__service = self.authorize()
       
 @new_thread
 def mirrorNode(update, context):
@@ -109,7 +40,7 @@ def mirrorNode(update, context):
     args = update.message.text.split(" ", maxsplit=1)
     reply_to = update.message.reply_to_message
     link = ''
-    gd = GoogleDriveHelper1()
+    gd = GoogleDriveHelper()
     if len(args) > 1:
         link = args[1]
     if reply_to is not None:
@@ -141,8 +72,8 @@ def mirrorNode(update, context):
         msg += f'<b>Filename: </b><code>{file.get("name")}</code>'
         buttons = ButtonMaker()
         buttons.buildbutton("☁️ Drive Link", result)
-        if INDEX_URL is not None:
-          iresult = f'{INDEX_URL}/{filename}'
+        if DRIVE_INDEX_URL is not None:
+          iresult = f'{DRIVE_INDEX_URL}/{filename}'
           buttons.buildbutton("☁️ Drive Link", iresult)
       
       except Exception as err:
@@ -150,41 +81,6 @@ def mirrorNode(update, context):
         return msg, ""
   return msg, InlineKeyboardMarkup(buttons.build_menu(2))
              
-        
-def mirror(link):
-  r = requests.get(link, stream = True)
-  # No Dependency
-  filename = link.split("/")[-1]
-  loc = DOWNLOAD_DIR+filename
-  with open(loc, "wb") as file:
-  # Always write format like (.txt/.mp3/.mp4/.pdf/.json/.iso)
-	  for block in r.iter_content(chunk_size = 1024):
-		  if block:
-			  file.write(block)
-  mimefile = get_mime_type(loc)
-  file_metadata = {
-            'name': filename,
-            'description': 'Uploaded by SearchX-bot',
-            'mimeType': mimefile,
-        }
-  if ospath.getsize(loc) == 0:
-            media_body = MediaFileUpload(loc,
-                                         mimetype=mimefile,
-                                         resumable=False)
-            response = self.__service.files().create(supportsAllDrives=True,
-                                                              body=file_metadata, media_body=media_body).execute()
-          
-  media_body = MediaFileUpload(loc,
-                               mimetype=mimefile,
-                               resumable=True,
-                               chunksize=50 * 1024 * 1024)
-  drive_file = self.__service.files().create(supportsAllDrives=True,
-                                                   body=file_metadata, media_body=media_body)
-  response = None
-  drive_file = self.__service.files().get(supportsAllDrives=True, fileId=response['id']).execute()
-  download_url = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(drive_file.get('id'))
-  os.remove(loc)
-  return download_url
 
 mirror_handler = CommandHandler(BotCommands.CloneCommand, mirrorNode,
                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
