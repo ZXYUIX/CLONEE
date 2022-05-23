@@ -39,7 +39,7 @@ def cloneNode(update, context):
             msg = sendMessage(f"<b>Processing:</b> <code>{link}</code>", context.bot, update)
             LOGGER.info(f"Processing: {link}")
             if is_appdrive:
-                link = unified(link)
+                link = appdrive(link)
             if is_gdtot:
                 link = gdtot(link)
             if is_gdflix:
