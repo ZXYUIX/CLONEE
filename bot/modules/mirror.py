@@ -25,6 +25,7 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from tenacity import *
 
 from telegram import InlineKeyboardMarkup
+from telegram.ext import CommandHandler
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, before_log, RetryError
 from bot import parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, DRIVE_INDEX_URL, USE_SERVICE_ACCOUNTS
 from bot.helper.drive_utils.gdriveTools import *
@@ -82,6 +83,6 @@ def mirrorNode(update, context):
     return msg, InlineKeyboardMarkup(buttons.build_menu(2))
              
 
-mirror_handler = CommandHandler(BotCommands.CloneCommand, mirrorNode,
+mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirrorNode,
                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 dispatcher.add_handler(mirror_handler)
