@@ -79,7 +79,7 @@ def mirrorNode(update, context):
       except Exception as err:
         msg = f"Error"
         return msg, ""
-  return msg, InlineKeyboardMarkup(buttons.build_menu(2))
+    return msg, InlineKeyboardMarkup(buttons.build_menu(2))
              
 
 mirror_handler = CommandHandler(BotCommands.CloneCommand, mirrorNode,
