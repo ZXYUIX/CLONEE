@@ -2,10 +2,16 @@ dnspython
 google-api-python-client
 google-auth-oauthlib
 lxml
+pillow
+psutil
+psycopg2-binary
+pybase64
 pymongo
 python-dotenv
-python-magic
+flask
+python-magic==0.4.15
 python-telegram-bot
 requests
 telegraph
 tenacity
+urllib3
