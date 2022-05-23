@@ -44,7 +44,7 @@ def unified(url: str) -> str:
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
     })
 
-    account_login(client, url, email, password)
+    account_login(client, url, account['email'], account['passwd'])
 
     res = client.get(url)
     key = re.findall('"key",\s+"(.*?)"', res.text)[0]
