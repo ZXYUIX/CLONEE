@@ -8,8 +8,8 @@ psycopg2-binary
 pybase64
 pymongo
 python-dotenv
-flask
-python-magic==0.4.15
+mime
+python-magic
 python-telegram-bot
 requests
 telegraph
