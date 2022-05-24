@@ -7,6 +7,7 @@ from bot.helper.ext_utils.bypass_parser import *
 from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, deleteMessage
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
+from bot.helper.telegram_helper.button_build import ButtonMaker
 
 
 @new_thread
@@ -39,6 +40,9 @@ def bypassNode(update, context):
       deleteMessage(context.bot, msg)
       msg = sendMessage(f"<b>✨✨ Bypassed Link ✨✨:</b> <code>{link}</code>", context.bot, update)
       LOGGER.info(f"✨✨ Bypassed Link ✨✨: {link}")
+      buttons = ButtonMaker()
+      buttons.buildbutton("✨✨ Bypassed Link ✨✨", link)
+      return InlineKeyboardMarkup(buttons.build_menu(1))
       
       
 bypass_handler = CommandHandler(BotCommands.BypassCommand, bypassNode,
