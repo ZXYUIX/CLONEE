@@ -23,7 +23,7 @@ from tenacity import *
 from bot import LOGGER, DRIVE_NAME, DRIVE_ID, INDEX_URL, parent_id, \
     IS_TEAM_DRIVE, telegraph, USE_SERVICE_ACCOUNTS, DRIVE_INDEX_URL
 from bot.helper.ext_utils.bot_utils import *
-from bot.helper.telegram_helper import button_builder
+from bot.helper.telegram_helper.button_build import ButtonMaker 
 
 logging.getLogger('googleapiclient.discovery').setLevel(logging.ERROR)
 
@@ -235,11 +235,12 @@ class GoogleDriveHelper:
                 msg += f"\n<b>SubFolders: </b>{self.total_folders}"
                 msg += f"\n<b>Files: </b>{self.total_files}"
                 durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
-                button = ButtonMaker()
-                buttons.build_button("☁️ Drive Link", durl)
+                buttons = ButtonMaker()
+                buttons.buildbutton("☁️ Drive Link", durl)
                 if DRIVE_INDEX_URL is not None:
                     url = requests.utils.requote_uri(f'{DRIVE_INDEX_URL}/{meta.get("name")}/')
-                    buttons.build_button("⚡ Index Link", url)
+                    buttons.buildbutton("⚡ Index Link", url)
+                return msg, InlineKeyboardMarkup(buttons.build_menu(2))
             else:
                 file = self.copyFile(meta.get('id'), parent_id, status)
                 try:
@@ -534,7 +535,7 @@ class GoogleDriveHelper:
         msg = f"<b>Found {response_count} results matching '{file_name}' in {len(DRIVE_ID)} Drives</b> " \
               f"<b>(Time taken {time_taken}s)</b>"
 
-        buttons = button_builder.ButtonMaker()
-        buttons.build_button("VIEW RESULTS 🗂️", f"https://telegra.ph/{self.path[0]}")
+        buttons = ButtonMaker()
+        buttons.buildbutton("VIEW RESULTS 🗂️", f"https://telegra.ph/{self.path[0]}")
 
         return msg, InlineKeyboardMarkup(buttons.build_menu(1))
