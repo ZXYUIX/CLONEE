@@ -85,27 +85,33 @@ def unified(url: str) -> str:
         info_parsed['error_message'] = 'Something went wrong :('
     
     if urlparse(url).netloc == 'appdrive.in' and not info_parsed['error']:
-        return info_parsed['gdrive_link']
+        flink = info_parsed['gdrive_link']
+        return flink
     
     if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
         res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
+        flink = drive_link
 
     if urlparse(url).netloc == 'drivesharer.in' and not info_parsed['error']:
         res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
+        flink = drive_link
 
     if urlparse(url).netloc == 'drivebit.in' and not info_parsed['error']:
         res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
+        flink = drive_link
+        
+    if urlparse(url).netloc == 'drivelinks.in' and not info_parsed['error']:
+        res = client.get(info_parsed['gdrive_link'])
+        drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn btn-primary')]/@href")[0]
+        flink = drive_link
 
 
     info_parsed['src_url'] = url
     
-    return info_parsed['gdrive_link']
+    return flink
 
                            
 def parse_info(res):
@@ -121,7 +127,11 @@ def udrive(url: str) -> str:
     client = requests.Session()
     if 'hubdrive' in url:
         client.cookies.update({'crypt': HUBDRIVE_CRYPT})
-    if ('katdrive' or 'kolop') in url:
+    if 'drivehub' in url:
+        client.cookies.update({'crypt': HUBDRIVE_CRYPT})
+    if 'katdrive' in url:
+        client.cookies.update({'crypt': KATDRIVE_CRYPT})
+    if 'kolop' in url:
         client.cookies.update({'crypt': KATDRIVE_CRYPT})
     if 'drivefire' in url:
         client.cookies.update({'crypt': DRIVEFIRE_CRYPT})

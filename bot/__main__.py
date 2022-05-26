@@ -3,7 +3,7 @@ import time
 from telegram.ext import CommandHandler
 
 from bot import AUTHORIZED_CHATS, dispatcher, updater
-from bot.modules import auth, clone, count, delete, list, permission, shell
+from bot.modules import auth, clone, count, delete, list, permission, shell, bypass
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import *
@@ -44,6 +44,8 @@ For <i>file</i> results only:
 /{BotCommands.CloneCommand} [url]: Copy data from Drive / AppDrive / DriveApp / GDToT / DriveBit / GDFlix / DriveLinks / DriveSharer / HubDrive / KatDrive / Kolop / DriveFire to Drive
 
 /{BotCommands.CountCommand} [drive_url]: Count data of Drive
+
+/{BotCommands.BypassCommand} [shorten_url]: Bypass GPLinks, RockLinks, Adf.ly and DropLink Links
 
 /{BotCommands.PermissionCommand} [drive_url]: Set data permission to 'Anyone with the link' (Only owner)
 

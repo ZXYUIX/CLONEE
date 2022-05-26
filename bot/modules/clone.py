@@ -31,10 +31,11 @@ def cloneNode(update, context):
     is_drivebit = is_drivebit_link(link)
     is_drivesharer = is_drivesharer_link(link)
     is_hubdrive = is_hubdrive_link(link)
+    is_drivehub = is_drivehub_link(link)
     is_katdrive = is_katdrive_link(link)
     is_kolop = is_kolop_link(link)
     is_drivefire = is_drivefire_link(link)
-    if (is_gdtot  or is_appdrive or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_katdrive or is_kolop or is_drivefire):
+    if (is_gdtot  or is_appdrive or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_drivehub or is_katdrive or is_kolop or is_drivefire):
         try:
             msg = sendMessage(f"<b>Processing:</b> <code>{link}</code>", context.bot, update)
             LOGGER.info(f"Processing: {link}")
@@ -53,6 +54,8 @@ def cloneNode(update, context):
             if is_drivesharer:
                 link = unified(link)
             if is_hubdrive:
+                link = udrive(link)
+            if is_drivehub:
                 link = udrive(link)
             if is_katdrive:
                 link = udrive(link)
@@ -75,7 +78,7 @@ def cloneNode(update, context):
         deleteMessage(context.bot, msg)
         status_class.set_status(True)
         sendMessage(result, context.bot, update)
-        if (is_appdrive or is_gdtot or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_katdrive or is_kolop or is_drivefire):
+        if (is_appdrive or is_gdtot or is_gdflix or is_driveapp or is_drivelinks or is_drivebit or is_drivesharer or is_hubdrive or is_drivehub or is_katdrive or is_kolop or is_drivefire):
             LOGGER.info(f"Deleting: {link}")
             gd.deleteFile(link)
     else:
