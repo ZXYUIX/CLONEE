@@ -50,6 +50,10 @@ def is_hubdrive_link(url: str):
     url = re.match(r'https?://(hubdrive)\.\S+', url)
     return bool(url)
 
+def is_drivehub_link(url: str):
+    url = re.match(r'https?://(drivehub)\.\S+', url)
+    return bool(url)
+
 def is_katdrive_link(url: str):
     url = re.match(r'https?://(katdrive)\.\S+', url)
     return bool(url)
