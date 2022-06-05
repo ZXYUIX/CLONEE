@@ -6,7 +6,7 @@ from lxml import etree
 from urllib.parse import urlparse, parse_qs
 
 from bot import UNIFIED_EMAIL, UNIFIED_PASS, GDTOT_CRYPT, HUBDRIVE_CRYPT, KATDRIVE_CRYPT, DRIVEFIRE_CRYPT
-from bot.helper.ext_utils.exceptions import DDLException
+from bot.helper.ext_utils.exceptions import ExceptionHandler
 
 account = {
     'email': UNIFIED_EMAIL, 
@@ -38,7 +38,7 @@ def parse_infou(data):
 
 def unified(url: str) -> str:
     if (UNIFIED_EMAIL or UNIFIED_PASS) is None:
-        raise DDLException("UNIFIED_EMAIL and UNIFIED_PASS env vars not provided")
+        raise ExceptionHandler("UNIFIED_EMAIL and UNIFIED_PASS env vars not provided")
     client = requests.Session()
     client.headers.update({
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
@@ -166,7 +166,7 @@ def udrive(url: str) -> str:
         
 def gdtot(url: str) -> str:
     if GDTOT_CRYPT is None:
-        raise DDLException("GDTOT_CRYPT env var not provided")
+        raise ExceptionHandler("GDTOT_CRYPT env var not provided")
     client = requests.Session()
     client.cookies.update({'crypt': GDTOT_CRYPT})
     res = client.get(url)
@@ -188,4 +188,4 @@ def gdtot(url: str) -> str:
     if not info['error']:
         return info['gdrive_link']
     else:
-        raise DDLException(f"{info['message']}")
+        raise ExceptionHandler(f"{info['message']}")
